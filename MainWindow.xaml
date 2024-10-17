@@ -5,8 +5,120 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZiraceVideoPlayer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Zirace" Height="600" Width="1000">
 
-    </Grid>
+    <Window.Resources>
+        <!-- Menu Style -->
+        <Style TargetType="Menu">
+            <Setter Property="Background" Value="#2C2C2C" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontFamily" Value="Segoe UI" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+
+        <!-- Dropdown MenuItem Style -->
+        <!-- MenuItem Style with Child Menu Support -->
+        <Style TargetType="MenuItem">
+            <Setter Property="Background" Value="#2C2C2C" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="5"
+                                BorderBrush="#444"
+                                BorderThickness="1">
+                            <Grid>
+                                <ContentPresenter ContentSource="Header" Margin="5,0" RecognizesAccessKey="True"/>
+                                <Popup x:Name="SubMenuPopup"
+                                       Placement="Bottom"
+                                       IsOpen="{TemplateBinding IsSubmenuOpen}"
+                                       AllowsTransparency="True">
+                                    <Border Background="#2C2C2C" CornerRadius="5" 
+                                            BorderBrush="#444" BorderThickness="1">
+                                        <ItemsPresenter />
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <!-- Hover Effect -->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#444" />
+                    <Setter Property="Foreground" Value="#FFD700" />
+                </Trigger>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="#555" />
+                    <Setter Property="Foreground" Value="#FFD700" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Separator Styling -->
+        <Style TargetType="Separator">
+            <Setter Property="Margin" Value="5,2" />
+            <Setter Property="Background" Value="#666" />
+            <Setter Property="Height" Value="1" />
+        </Style>
+    </Window.Resources>
+
+
+
+
+
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Top Menu -->
+        <Menu DockPanel.Dock="Top" Background="#2C2C2C" Foreground="White">
+            <MenuItem Header="_File">
+                <MenuItem Header="Open Video..." Click="OpenVideo_Click"/>
+                <MenuItem Header="Exit" Click="Exit_Click"/>
+            </MenuItem>
+            <MenuItem Header="_View" >
+                <MenuItem Header="Fullscreen" Click="ToggleFullscreen_Click"/>
+                <MenuItem Header="Minimize" Click="Minimize_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Help" >
+                <MenuItem Header="About" Click="About_Click"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Main Content Area -->
+        <Grid>
+            <!-- Video Player Element -->
+            <MediaElement x:Name="mediaElement" LoadedBehavior="Manual" />
+
+            <!-- Control Panel -->
+            <Border Background="#AA000000" CornerRadius="10" 
+                HorizontalAlignment="Stretch" VerticalAlignment="Bottom" 
+                Margin="10" Padding="10">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <!-- Back 10 seconds Button -->
+                    <Button x:Name="btnBack" Content="-10s" Click="btnBack_Click" 
+                        Margin="5" Width="60" Height="30"/>
+
+                    <!-- Play Button -->
+                    <Button x:Name="btnPlay" Content="Play" Click="btnPlay_Click" 
+                        Margin="5" Width="60" Height="30"/>
+
+                    <!-- Pause Button -->
+                    <Button x:Name="btnPause" Content="Pause" Click="btnPause_Click" 
+                        Margin="5" Width="60" Height="30"/>
+
+                    <!-- Forward 10 seconds Button -->
+                    <Button x:Name="btnForward" Content="+10s" Click="btnForward_Click" 
+                        Margin="5" Width="60" Height="30"/>
+                </StackPanel>
+            </Border>
+
+        </Grid>
+
+    </DockPanel>
 </Window>
