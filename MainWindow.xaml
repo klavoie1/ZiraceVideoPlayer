@@ -119,18 +119,18 @@
                 <!-- Duration Slider with Time Labels -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="7">
                     <!-- Elapsed Time -->
-                    <TextBlock Name="elapsedTime" Text="00:00" Foreground="White" Width="50" VerticalAlignment="Center" />
+                    <TextBlock Name="ElapsedTime" Text="00:00" Foreground="White" Width="50" VerticalAlignment="Center" />
 
                     <!-- Slider for Duration -->
-                    <Slider Name="durationSlider" Width="800" Margin="5,0" 
+                    <Slider Name="DurationSlider" Width="800" Margin="5,0" 
                     Minimum="0" Maximum="100" Value="0"
-                    PreviewMouseDown="durationSlider_PreviewMouseDown"
-                    PreviewMouseUp="durationSlider_PreviewMouseUp"
-                    ValueChanged="durationSlider_ValueChanged" 
+                    PreviewMouseDown="DurationSlider_PreviewMouseDown"
+                    PreviewMouseUp="DurationSlider_PreviewMouseUp"
+                    ValueChanged="DurationSlider_ValueChanged" 
                     Focusable="False"/>
 
                     <!-- Remaining Time -->
-                    <TextBlock Name="remainingTime" Text="-00:00" Foreground="White" Width="50" VerticalAlignment="Center" />
+                    <TextBlock Name="RemainingTime" Text="-00:00" Foreground="White" Width="50" VerticalAlignment="Center" />
                 </StackPanel>
 
                 <!-- Control Panel -->

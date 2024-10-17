@@ -23,7 +23,7 @@ namespace ZiraceVideoPlayer
 
 
         //Dispatcher Elements
-        private DispatcherTimer durationTimer;
+        private DispatcherTimer durationTimer; //Timing for the Duration Slider
 
 
 
@@ -31,9 +31,9 @@ namespace ZiraceVideoPlayer
         {
             InitializeComponent();
 
-            // Set up a timer to update the slider and labels
+            // Set up a timer to update the slider
             durationTimer = new DispatcherTimer();
-            durationTimer.Interval = TimeSpan.FromSeconds(1);
+            durationTimer.Interval = TimeSpan.FromMilliseconds(500);
             durationTimer.Tick += Timer_Tick;
         }
 
@@ -70,7 +70,7 @@ namespace ZiraceVideoPlayer
 
         private void About_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("This is a simple video player.", "About");
+            MessageBox.Show("Zirace video player.", "About");
         }
 
 
@@ -83,7 +83,15 @@ namespace ZiraceVideoPlayer
 
 
 
-        // Control Panel Settings------------------------------------------------------------------>
+        // Control Panel Settings-------------------------------------------------------------------->
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            if (mediaElement.NaturalDuration.HasTimeSpan && !isSeeking)
+        }
+
+
+
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {
             mediaElement.Play();
@@ -115,6 +123,31 @@ namespace ZiraceVideoPlayer
         {
             mediaElement.Volume = volumeSlider.Value;
         }
+
+        private void DurationSlider_PreviewMouseDown(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            isSeeking = true; // Stops the timer when a user interacts with the slider
+            // Need to set the labels for the slider
+        }
+
+        private void DurationSlider_PreviewMouseUp(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            isSeeking = false; // Resumes the timer updates
+            mediaElement.Position = TimeSpan.FromSeconds(DurationSlider.Value);
+        }
+
+        private void DurationSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (mediaElement.NaturalDuration.HasTimeSpan && DurationSlider.IsMouseOver)
+            {
+                mediaElement.Position = TimeSpan.FromSeconds(DurationSlider.Value);
+            }
+        }
+
+
+
+
+
 
 
 
