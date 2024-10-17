@@ -107,7 +107,7 @@
             <MediaElement Name="mediaElement" LoadedBehavior="Manual" Stretch="Uniform" Focusable="False"/>
 
             <!-- Overlay Panel for Controls and Duration Slider -->
-            <Grid Name="overlayPanel" VerticalAlignment="Bottom" Background="#80000000" 
+            <Grid Name="OverlayPanel" VerticalAlignment="Bottom" Background="#80000000" 
           Height="105" Visibility="Visible" Focusable="False">
                 <Grid.RowDefinitions>
                     <!-- Slider Row -->
