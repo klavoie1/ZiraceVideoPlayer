@@ -8,15 +8,33 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace ZiraceVideoPlayer
 {
     
     public partial class MainWindow : Window
     {
+        // Tracking Variables
+        private bool isSeeking = false;
+        private bool isPlaying = false;
+        private bool isTimerUpdate = false;
+        private bool isFullscreen = false;
+
+
+        //Dispatcher Elements
+        private DispatcherTimer durationTimer;
+
+
+
         public MainWindow()
         {
             InitializeComponent();
+
+            // Set up a timer to update the slider and labels
+            durationTimer = new DispatcherTimer();
+            durationTimer.Interval = TimeSpan.FromSeconds(1);
+            durationTimer.Tick += Timer_Tick;
         }
 
         
@@ -56,22 +74,47 @@ namespace ZiraceVideoPlayer
         }
 
 
-        // End of File menu bar settings---------------------------------------------------------->//
+        // End of File menu bar settings------------------------------------------------------------>
+        
+
+        // OverLay Control Panel Settings---------------------------------------------------------->
+    
+        // End of Overlay Control Panel Settings--------------------------------------------------->
 
 
 
+        // Control Panel Settings------------------------------------------------------------------>
+        private void btnPlay_Click(object sender, RoutedEventArgs e)
+        {
+            mediaElement.Play();
+        }
 
+        private void btnPause_Click(object sender, RoutedEventArgs e)
+        {
+            mediaElement.Pause();
+        }
 
+        private void btnBack_Click(object sender, RoutedEventArgs e)
+        {
+            if (mediaElement.Position.TotalSeconds >= 10)
+            {
+                mediaElement.Position -= TimeSpan.FromSeconds(10);
+            }
+            else
+            {
+                mediaElement.Position = TimeSpan.Zero;
+            }
+        }
 
+        private void btnForward_Click(object sender, RoutedEventArgs e)
+        {
+            mediaElement.Position += TimeSpan.FromSeconds(10);
+        }
 
-
-
-
-
-
-
-
-
+        private void volumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            mediaElement.Volume = volumeSlider.Value;
+        }
 
 
 
