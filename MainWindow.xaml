@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:ZiraceVideoPlayer"
         mc:Ignorable="d"
         Title="Zirace" Height="600" Width="1000"
-        KeyDown="Window_KeyDown">
+        KeyDown="Window_KeyDown"
+        Background="Black">
 
     <Window.Resources>
         <!-- Menu Style -->
