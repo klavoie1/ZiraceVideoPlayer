@@ -44,7 +44,7 @@ namespace ZiraceVideoPlayer
             durationTimer.Tick += Timer_Tick;
 
             DurationLabelTimer = new DispatcherTimer();
-            DurationLabelTimer.Interval = TimeSpan.FromSeconds(2);
+            DurationLabelTimer.Interval = TimeSpan.FromMilliseconds(500);
             DurationLabelTimer.Tick += Timer_Tick;
 
             volumeSlider.Value = 0.3; // Set default volume to 30%
@@ -280,7 +280,7 @@ namespace ZiraceVideoPlayer
             else if (mediaElement != null && isPlaying == false)
             {
                 mediaElement.Play();
-                System.Console.WriteLine("Video Resumed");
+                System.Console.WriteLine($"Video Resumed @ {FormatTime(mediaElement.Position)}");
                 isPlaying = true;
             }
         }
@@ -436,7 +436,7 @@ namespace ZiraceVideoPlayer
             }
         }
 
-
+        // End of Saving video settings------------------------------------------------>
 
 
 
