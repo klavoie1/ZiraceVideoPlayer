@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using ZiraceVideoPlayer.Models;
 
 namespace ZiraceVideoPlayer
 {
@@ -22,10 +23,10 @@ namespace ZiraceVideoPlayer
         private bool isTimerUpdate = false;
         private bool isFullscreen = false;
 
-
         //Dispatcher Elements
         private DispatcherTimer durationTimer; //Timing for the Duration Slider
         private DispatcherTimer DurationLabelTimer; // Timing for duration labels
+        private DispatcherTimer HideControlsTimer; // Timer for hiding the controls overlay
 
 
         public MainWindow()
@@ -43,7 +44,19 @@ namespace ZiraceVideoPlayer
 
             volumeSlider.Value = 0.3; // Set default volume to 30%
             mediaElement.Volume = volumeSlider.Value; // Sync initial volume
-            volumeSlider.Value = mediaElement.Volume;
+
+            // Start with the control panel visible
+            ShowControls();
+
+            // Initialize the timer to hide controls
+            HideControlsTimer = new DispatcherTimer();
+            HideControlsTimer.Interval = TimeSpan.FromSeconds(1); // Hide after 1 seconds of inactivity
+            HideControlsTimer.Tick += HideControlsTimer_Tick;
+
+            // Start listening for mouse events to show/hide controls
+            mediaElement.MouseMove += MediaElement_MouseMove;
+            ControlPanel.MouseEnter += ControlPanel_MouseEnter;
+            ControlPanel.MouseLeave += ControlPanel_MouseLeave;
         }
 
         
@@ -60,24 +73,13 @@ namespace ZiraceVideoPlayer
                 mediaElement.Source = new Uri(openFileDialog.FileName);
                 mediaElement.Play();
                 durationTimer.Start();
+                isPlaying = true;
             }
         }
 
-        private void Exit_Click(object sender, RoutedEventArgs e)
-        {
-            Application.Current.Shutdown();
-        }
-
-        private void ToggleFullscreen_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        }
-
-        private void Minimize_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
+        private void Exit_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
+        private void ToggleFullscreen_Click(object sender, RoutedEventArgs e) => ToggleFullscreen();
+        private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Zirace video player.", "About");
@@ -88,6 +90,41 @@ namespace ZiraceVideoPlayer
 
 
         // OverLay Control Panel Settings---------------------------------------------------------->
+        // Show the control panel (set opacity to 1)
+        // Show the control panel and restart the inactivity timer if needed
+        // Hide the controls when the timer elapses
+        private void HideControlsTimer_Tick(object sender, EventArgs e)
+        {
+            ControlPanel.Visibility = Visibility.Collapsed;
+            HideControlsTimer.Stop(); // Stop the timer until the next interaction
+        }
+
+        // Helper to show the controls
+        private void ShowControls()
+        {
+            ControlPanel.Visibility = Visibility.Visible;
+        }
+
+        // Show controls when the mouse moves over the video
+        private void MediaElement_MouseMove(object sender, MouseEventArgs e)
+        {
+            ShowControls();
+            HideControlsTimer.Stop(); // Reset the hide timer
+            HideControlsTimer.Start(); // Start the hide timer again
+        }
+
+        // Ensure controls stay visible when interacting with them
+        private void ControlPanel_MouseEnter(object sender, MouseEventArgs e)
+        {
+            HideControlsTimer.Stop(); // Stop the timer while hovering on the controls
+        }
+
+        private void ControlPanel_MouseLeave(object sender, MouseEventArgs e)
+        {
+            HideControlsTimer.Start(); // Restart the timer when leaving the controls
+        }
+
+
 
         // End of Overlay Control Panel Settings--------------------------------------------------->
 
@@ -124,29 +161,22 @@ namespace ZiraceVideoPlayer
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {
             mediaElement.Play();
+            DurationLabelTimer.Start();
+            isPlaying = true;
+            ShowControls();
         }
 
         private void btnPause_Click(object sender, RoutedEventArgs e)
         {
             mediaElement.Pause();
+            DurationLabelTimer.Stop();
+            isPlaying = false;
+            ShowControls();
         }
 
-        private void btnBack_Click(object sender, RoutedEventArgs e)
-        {
-            if (mediaElement.Position.TotalSeconds >= 10)
-            {
-                mediaElement.Position -= TimeSpan.FromSeconds(10);
-            }
-            else
-            {
-                mediaElement.Position = TimeSpan.Zero;
-            }
-        }
+        private void btnBack_Click(object sender, RoutedEventArgs e) => Seek(-10);
 
-        private void btnForward_Click(object sender, RoutedEventArgs e)
-        {
-            mediaElement.Position += TimeSpan.FromSeconds(10);
-        }
+        private void btnForward_Click(object sender, RoutedEventArgs e) => Seek(10);
 
         private void volumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -165,6 +195,7 @@ namespace ZiraceVideoPlayer
             mediaElement.Position = TimeSpan.FromSeconds(DurationSlider.Value);
             DurationLabelTimer.Start();
         }
+    
 
         private void DurationSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -176,16 +207,8 @@ namespace ZiraceVideoPlayer
 
         private void ToggleFullscreen()
         {
-            if (WindowState == WindowState.Normal)
-            {
-                WindowState = WindowState.Maximized;
-                this.WindowStyle = WindowStyle.None; // Optional: Hide window borders
-            }
-            else
-            {
-                WindowState = WindowState.Normal;
-                this.WindowStyle = WindowStyle.SingleBorderWindow; // Restore borders
-            }
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            WindowStyle = WindowState == WindowState.Maximized ? WindowStyle.None : WindowStyle.SingleBorderWindow;
         }
 
         private void IncreaseVolume()
@@ -236,6 +259,8 @@ namespace ZiraceVideoPlayer
             }
         }
 
+        
+
 
 
 
@@ -247,5 +272,11 @@ namespace ZiraceVideoPlayer
             return time.ToString(time.Hours > 0 ? @"hh\:mm\:ss" : @"mm\:ss");
         }
 
+        private void Seek(int seconds)
+        {
+            var newPosition = mediaElement.Position + TimeSpan.FromSeconds(seconds);
+            mediaElement.Position = newPosition < TimeSpan.Zero ? TimeSpan.Zero : newPosition;
         }
+
+    }
 }
