@@ -87,21 +87,6 @@ namespace ZiraceVideoPlayer
         
 
         // Menu tab at the top of the video player settings--------------------------------------->//
-        //private void OpenVideo_Click(object sender, RoutedEventArgs e)
-        //{
-        //    var openFileDialog = new Microsoft.Win32.OpenFileDialog
-        //    {
-        //        Filter = "Video Files|*.mp4;*.avi;*.mkv"
-        //    };
-        //    if (openFileDialog.ShowDialog() == true)
-        //    {
-        //        mediaElement.Source = new Uri(openFileDialog.FileName);
-        //        mediaElement.Play();
-        //        durationTimer.Start();
-        //        isPlaying = true;
-        //    }
-        //}
-
         private void Exit_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
         private void ToggleFullscreen_Click(object sender, RoutedEventArgs e) => ToggleFullscreen();
         private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
@@ -284,6 +269,22 @@ namespace ZiraceVideoPlayer
             }
         }
 
+        private void TogglePlayPause()
+        {
+            if (mediaElement != null && isPlaying == true)
+            {
+                mediaElement.Pause();
+                System.Console.WriteLine("Video Paused");
+                isPlaying = false;
+            }
+            else if (mediaElement != null && isPlaying == false)
+            {
+                mediaElement.Play();
+                System.Console.WriteLine("Video Resumed");
+                isPlaying = true;
+            }
+        }
+
         // End of Control Panel Settings------------------------------------------------------->
 
 
@@ -318,8 +319,8 @@ namespace ZiraceVideoPlayer
                     break;
 
                 case Key.Space:
-                    if (isPlaying == true)  mediaElement.Pause();
-                    else mediaElement.Play();
+                    TogglePlayPause();
+                    e.Handled = true;
                     break;
 
             }
@@ -388,7 +389,10 @@ namespace ZiraceVideoPlayer
             VideoState state = LoadVideoState();
 
             // Open the video file
-            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Video Files|*.mp4;*.avi;*.mkv"
+            };
             if (openFileDialog.ShowDialog() == true)
             {
                 mediaElement.Source = new Uri(openFileDialog.FileName);
@@ -400,6 +404,7 @@ namespace ZiraceVideoPlayer
                 }
 
                 mediaElement.Play();
+                isPlaying = true;
 
             }
         }
