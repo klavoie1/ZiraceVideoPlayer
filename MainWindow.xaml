@@ -98,7 +98,7 @@
                 <MenuItem Header="Exit" Click="Exit_Click"/>
             </MenuItem>
             <MenuItem Header="_View">
-                <MenuItem Header="Fullscreen" Click="ToggleFullscreen_Click"/>
+                <MenuItem Header="Fullscreen" ToolTip="Toggle Fullscreen on/Off (f)" Click="ToggleFullscreen_Click"/>
                 <MenuItem Header="Minimize" Click="Minimize_Click"/>
             </MenuItem>
             <MenuItem Header="_Help">
@@ -118,7 +118,11 @@
             <!-- MediaElement (Video Area) -->
             <MediaElement Name="mediaElement" 
                           LoadedBehavior="Manual" UnloadedBehavior="Stop" 
-                          Stretch="Uniform" Focusable="False" Grid.RowSpan="2" />
+                          Stretch="Uniform" Focusable="False" Grid.RowSpan="2" 
+                          MediaEnded="MediaElement_MediaEnded"
+                          MediaOpened="MediaElement_MediaOpened"/>
+            
+            
 
             <!-- Control Panel at the Bottom -->
             <StackPanel Grid.Row="1" Name="ControlPanel" Orientation="Vertical"

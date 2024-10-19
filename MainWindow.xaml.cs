@@ -1,16 +1,21 @@
 ﻿using System.Printing;
 using System.Text;
+using System.IO;
+using System.Xml.Serialization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Diagnostics;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using ZiraceVideoPlayer.Models;
+using Microsoft.Win32;
+using Path = System.IO.Path;
 
 namespace ZiraceVideoPlayer
 {
@@ -57,25 +62,45 @@ namespace ZiraceVideoPlayer
             mediaElement.MouseMove += MediaElement_MouseMove;
             ControlPanel.MouseEnter += ControlPanel_MouseEnter;
             ControlPanel.MouseLeave += ControlPanel_MouseLeave;
+
+            
+
+
+            // Load the saved state from XML or create a fresh one
+            var savedState = LoadVideoState();
+
+            // Check if a video was previously saved and exists on disk
+            if (!string.IsNullOrEmpty(savedState.VideoPath) && File.Exists(savedState.VideoPath))
+            {
+                mediaElement.Source = new Uri(savedState.VideoPath);
+                mediaElement.Position = TimeSpan.FromSeconds(savedState.LastPosition);
+
+                Console.WriteLine($"Resuming: {savedState.VideoPath} at {savedState.LastPosition} seconds.");
+                mediaElement.Play();  // Optionally start playing the video
+            }
+            else
+            {
+                Console.WriteLine("No previous video to load.");
+            }
         }
 
         
 
         // Menu tab at the top of the video player settings--------------------------------------->//
-        private void OpenVideo_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Filter = "Video Files|*.mp4;*.avi;*.mkv"
-            };
-            if (openFileDialog.ShowDialog() == true)
-            {
-                mediaElement.Source = new Uri(openFileDialog.FileName);
-                mediaElement.Play();
-                durationTimer.Start();
-                isPlaying = true;
-            }
-        }
+        //private void OpenVideo_Click(object sender, RoutedEventArgs e)
+        //{
+        //    var openFileDialog = new Microsoft.Win32.OpenFileDialog
+        //    {
+        //        Filter = "Video Files|*.mp4;*.avi;*.mkv"
+        //    };
+        //    if (openFileDialog.ShowDialog() == true)
+        //    {
+        //        mediaElement.Source = new Uri(openFileDialog.FileName);
+        //        mediaElement.Play();
+        //        durationTimer.Start();
+        //        isPlaying = true;
+        //    }
+        //}
 
         private void Exit_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
         private void ToggleFullscreen_Click(object sender, RoutedEventArgs e) => ToggleFullscreen();
@@ -90,8 +115,6 @@ namespace ZiraceVideoPlayer
 
 
         // OverLay Control Panel Settings---------------------------------------------------------->
-        // Show the control panel (set opacity to 1)
-        // Show the control panel and restart the inactivity timer if needed
         // Hide the controls when the timer elapses
         private void HideControlsTimer_Tick(object sender, EventArgs e)
         {
@@ -123,8 +146,6 @@ namespace ZiraceVideoPlayer
         {
             HideControlsTimer.Start(); // Restart the timer when leaving the controls
         }
-
-
 
         // End of Overlay Control Panel Settings--------------------------------------------------->
 
@@ -172,6 +193,10 @@ namespace ZiraceVideoPlayer
             DurationLabelTimer.Stop();
             isPlaying = false;
             ShowControls();
+            if (mediaElement.Source != null)
+            {
+                SaveVideoState(mediaElement.Source.ToString(), mediaElement.Position.TotalSeconds);
+            }
         }
 
         private void btnBack_Click(object sender, RoutedEventArgs e) => Seek(-10);
@@ -231,6 +256,34 @@ namespace ZiraceVideoPlayer
             }
         }
 
+        private void RewindVideo()
+        {
+            if (mediaElement.Position.TotalSeconds > 10)
+            {
+                mediaElement.Position -= TimeSpan.FromSeconds(10);
+            }
+            else
+            {
+                mediaElement.Position = TimeSpan.Zero; // Go to start if less than 10 seconds
+            }
+        }
+
+        private void FastForwardVideo()
+        {
+            if (mediaElement.NaturalDuration.HasTimeSpan)
+            {
+                double newTime = mediaElement.Position.TotalSeconds + 10;
+                if (newTime < mediaElement.NaturalDuration.TimeSpan.TotalSeconds)
+                {
+                    mediaElement.Position = TimeSpan.FromSeconds(newTime);
+                }
+                else
+                {
+                    mediaElement.Position = mediaElement.NaturalDuration.TimeSpan; // Go to end
+                }
+            }
+        }
+
         // End of Control Panel Settings------------------------------------------------------->
 
 
@@ -254,12 +307,131 @@ namespace ZiraceVideoPlayer
                     e.Handled = true;
                     break;
 
+                case Key.Right:
+                    FastForwardVideo();
+                    e.Handled = true;
+                    break;
 
-                
+                case Key.Left:
+                    RewindVideo();
+                    e.Handled = true;
+                    break;
+
+                case Key.Space:
+                    if (isPlaying == true)  mediaElement.Pause();
+                    else mediaElement.Play();
+                    break;
+
             }
         }
 
-        
+        // End of Keyboard Shortcuts-------------------------------------------------->
+
+        //  Saving video progression settings---------------------------------->
+        private void SaveVideoState(string videoPath, double position)
+        {
+            try
+            {
+                VideoState state = new VideoState
+                {
+                    VideoPath = videoPath,
+                    LastPosition = position
+                };
+
+                XmlSerializer serializer = new XmlSerializer(typeof(VideoState));
+                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "VideoState.xml");
+
+                using (FileStream stream = new FileStream(filePath, FileMode.Create))
+                {
+                    serializer.Serialize(stream, state);
+                }
+
+                Console.WriteLine("Video state saved successfully.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error saving video state: " + ex.Message);
+            }
+        }
+
+        private VideoState LoadVideoState()
+        {
+            try
+            {
+                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "VideoState.xml");
+
+                if (File.Exists(filePath))
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(VideoState));
+                    using (FileStream stream = new FileStream(filePath, FileMode.Open))
+                    {
+                        return (VideoState)serializer.Deserialize(stream);
+                    }
+                }
+
+                Console.WriteLine("No saved state found. Starting fresh.");
+                return new VideoState { VideoPath = "", LastPosition = 0 };
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading video state: " + ex.Message);
+                return new VideoState { VideoPath = "", LastPosition = 0 };
+            }
+        }
+
+
+
+
+        private void OpenVideo_Click(object sender, RoutedEventArgs e)
+        {
+            // Load the last saved state
+            VideoState state = LoadVideoState();
+
+            // Open the video file
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                mediaElement.Source = new Uri(openFileDialog.FileName);
+
+                // If the video matches the last saved one, restore the position
+                if (state != null && state.VideoPath == openFileDialog.FileName)
+                {
+                    mediaElement.Position = TimeSpan.FromSeconds(state.LastPosition);
+                }
+
+                mediaElement.Play();
+
+            }
+        }
+
+        private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            SaveVideoState(mediaElement.Source.ToString(), mediaElement.Position.TotalSeconds);
+        }
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            base.OnClosing(e);
+
+            if (mediaElement.Source != null)
+            {
+                SaveVideoState(mediaElement.Source.ToString(), mediaElement.Position.TotalSeconds);
+            }
+        }
+
+        private void MediaElement_MediaOpened(object sender, RoutedEventArgs e)
+        {
+            // Load the saved position after the media is opened
+            var savedState = LoadVideoState();
+            if (mediaElement.Source != null && savedState.VideoPath == mediaElement.Source.ToString())
+            {
+                mediaElement.Position = TimeSpan.FromSeconds(savedState.LastPosition);
+                mediaElement.Play(); // Start playing the video from the saved position
+                Console.WriteLine($"Resuming: {savedState.VideoPath} at {savedState.LastPosition} seconds.");
+            }
+        }
+
+
 
 
 
