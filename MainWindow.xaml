@@ -78,6 +78,10 @@
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Opacity" Value="0.9" />
         </Style>
+
+        
+        
+        
     </Window.Resources>
 
 
@@ -93,86 +97,64 @@
                 <MenuItem Header="Open Video..." Click="OpenVideo_Click"/>
                 <MenuItem Header="Exit" Click="Exit_Click"/>
             </MenuItem>
-            <MenuItem Header="_View" >
+            <MenuItem Header="_View">
                 <MenuItem Header="Fullscreen" Click="ToggleFullscreen_Click"/>
                 <MenuItem Header="Minimize" Click="Minimize_Click"/>
             </MenuItem>
-            <MenuItem Header="_Help" >
+            <MenuItem Header="_Help">
                 <MenuItem Header="About" Click="About_Click"/>
             </MenuItem>
         </Menu>
 
         <!-- Main Content Area -->
         <Grid>
+            <Grid.RowDefinitions>
+                <!-- Media Player takes up all available space -->
+                <RowDefinition Height="*" />
+                <!-- Control Panel stays at the bottom -->
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
             <!-- MediaElement (Video Area) -->
-            <MediaElement Name="mediaElement" LoadedBehavior="Manual" Stretch="Uniform" Focusable="False"/>
+            <MediaElement Name="mediaElement" 
+                          LoadedBehavior="Manual" UnloadedBehavior="Stop" 
+                          Stretch="Uniform" Focusable="False" Grid.RowSpan="2" />
 
-            <!-- Overlay Panel for Controls and Duration Slider -->
-            <Grid Name="OverlayPanel" VerticalAlignment="Bottom" Background="#80000000" 
-          Height="105" Visibility="Visible" Focusable="False">
-                <Grid.RowDefinitions>
-                    <!-- Slider Row -->
-                    <RowDefinition Height="Auto" />
-                    <!-- Controls Row -->
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+            <!-- Control Panel at the Bottom -->
+            <StackPanel Grid.Row="1" Name="ControlPanel" Orientation="Vertical"
+                        Background="#AA000000" Height="100" Margin="0,0,0,2"
+                        Opacity="1" MouseEnter="ControlPanel_MouseEnter" 
+                        MouseLeave="ControlPanel_MouseLeave">
 
-                <!-- Duration Slider with Time Labels -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="7">
-                    <!-- Elapsed Time -->
+                <!-- Overlay for Duration Slider and Time Labels -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="7">
                     <TextBlock Name="ElapsedTime" Text="00:00" Foreground="White" Width="50" VerticalAlignment="Center" />
-
-                    <!-- Slider for Duration -->
-                    <Slider Name="DurationSlider" Width="800" Margin="5,0" 
-                    Minimum="0" Maximum="100" Value="0"
-                    PreviewMouseDown="DurationSlider_PreviewMouseDown"
-                    PreviewMouseUp="DurationSlider_PreviewMouseUp"
-                    ValueChanged="DurationSlider_ValueChanged" 
-                    Focusable="False"/>
-
-                    <!-- Remaining Time -->
+                    <Slider Name="DurationSlider" Width="800" Margin="5,0"
+                            Minimum="0" Maximum="100" Value="0"
+                            PreviewMouseDown="DurationSlider_PreviewMouseDown"
+                            PreviewMouseUp="DurationSlider_PreviewMouseUp"
+                            ValueChanged="DurationSlider_ValueChanged" 
+                            Focusable="False"/>
                     <TextBlock Name="RemainingTime" Text="-00:00" Foreground="White" Width="50" VerticalAlignment="Center" />
                 </StackPanel>
 
-                <!-- Control Panel -->
-                <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" 
-                    Margin="10" Padding="10" Grid.Row="1">
-                    <!-- Assigned to Row 1 -->
-                    <DockPanel LastChildFill="False">
-                        <!-- Controls StackPanel -->
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" 
-                                    DockPanel.Dock="Left">
-                            <!-- Back 10 seconds Button -->
-                            <Button x:Name="btnBack" Content="-10s" Click="btnBack_Click" 
-                            Margin="5" Width="65" Height="35"/>
+                <!-- Playback Controls and Volume Slider -->
+                <DockPanel Margin="10">
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" HorizontalAlignment="Center">
+                        <Button x:Name="btnBack" Content="-10s" Click="btnBack_Click" Width="65" Height="35"/>
+                        <Button x:Name="btnPlay" Content="Play" Click="btnPlay_Click" Width="65" Height="35"/>
+                        <Button x:Name="btnPause" Content="Pause" Click="btnPause_Click" Width="65" Height="35"/>
+                        <Button x:Name="btnForward" Content="+10s" Click="btnForward_Click" Width="65" Height="35"/>
+                    </StackPanel>
 
-                            <!-- Play Button -->
-                            <Button x:Name="btnPlay" Content="Play" Click="btnPlay_Click" 
-                            Margin="5" Width="65" Height="35"/>
-
-                            <!-- Pause Button -->
-                            <Button x:Name="btnPause" Content="Pause" Click="btnPause_Click" 
-                            Margin="5" Width="65" Height="35"/>
-
-                            <!-- Forward 10 seconds Button -->
-                            <Button x:Name="btnForward" Content="+10s" Click="btnForward_Click" 
-                            Margin="5" Width="65" Height="35"/>
-                        </StackPanel>
-
-                        <!-- Volume Slider on the Right -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" DockPanel.Dock="Right" Margin="10,0,0,0">
-                            <!-- Volume Icon -->
-                            <TextBlock Text="🔊" Foreground="White" VerticalAlignment="Center" Margin="0,0,5,0"/>
-
-                            <!-- Volume Slider -->
-                            <Slider Name="volumeSlider" Width="100" Minimum="0" Maximum="1" 
-                            Value="0.5" TickFrequency="0.1" 
-                            ValueChanged="volumeSlider_ValueChanged"/>
-                        </StackPanel>
-                    </DockPanel>
-                </Border>
-            </Grid>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                        <TextBlock Text="🔊" Foreground="White" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <Slider Name="volumeSlider" Width="100" Minimum="0" Maximum="1"
+                                Value="0.5" TickFrequency="0.1" 
+                                ValueChanged="volumeSlider_ValueChanged"/>
+                    </StackPanel>
+                </DockPanel>
+            </StackPanel>
         </Grid>
-
     </DockPanel>
 </Window>
