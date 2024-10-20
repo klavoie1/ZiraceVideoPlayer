@@ -63,7 +63,7 @@
         </Style>
 
         <!-- Separator Styling -->
-        <Style x:Key="MenuSeperator" TargetType="Separator">
+        <Style TargetType="Separator">
             <Setter Property="Margin" Value="5,5" />
             <Setter Property="Background" Value="#6b6b6b" />
             <Setter Property="Height" Value="2" />
@@ -120,11 +120,12 @@
         <Menu x:Name="TopMenu" DockPanel.Dock="Top" Background="#2C2C2C" Foreground="White">
             <MenuItem Header="_File">
                 <MenuItem Header="Open Video..." Click="OpenVideo_Click"/>
-                <Separator x:Name="MenuSeperator"/>
+                <Separator/>
                 <MenuItem Header="Exit" Click="Exit_Click"/>
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="Fullscreen" ToolTip="Toggle Fullscreen on/Off (f)" Click="ToggleFullscreen_Click"/>
+                <Separator/>
                 <MenuItem Header="Minimize" Click="Minimize_Click"/>
             </MenuItem>
             <MenuItem Header="_Help">
