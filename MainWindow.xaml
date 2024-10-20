@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ZiraceVideoPlayer"
+        xmlns:local="clr-namespace:ZiraceVideoPlayer.Services"
         mc:Ignorable="d"
         Title="Zirace" Height="600" Width="1000"
         KeyDown="Window_KeyDown"
@@ -15,7 +15,7 @@
             <Setter Property="Background" Value="#2C2C2C" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="FontFamily" Value="Segoe UI" />
-            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontSize" Value="16" />
         </Style>
 
         <!-- Dropdown MenuItem Style -->
@@ -30,7 +30,7 @@
                     <ControlTemplate TargetType="MenuItem">
                         <Border Background="{TemplateBinding Background}"
                                 CornerRadius="5"
-                                BorderBrush="#444"
+                                BorderBrush="#828282"
                                 BorderThickness="0">
                             <Grid>
                                 <ContentPresenter ContentSource="Header" Margin="5,0" RecognizesAccessKey="True"/>
@@ -38,8 +38,8 @@
                                        Placement="Bottom"
                                        IsOpen="{TemplateBinding IsSubmenuOpen}"
                                        AllowsTransparency="True">
-                                    <Border Background="#2C2C2C" CornerRadius="5" 
-                                            BorderBrush="#444" BorderThickness="1">
+                                    <Border Background="#2C2C2C" CornerRadius="3" 
+                                            BorderBrush="#404040" BorderThickness="2">
                                         <ItemsPresenter />
                                     </Border>
                                 </Popup>
@@ -52,26 +52,27 @@
             <!-- Hover Effect -->
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#444" />
-                    <Setter Property="Foreground" Value="#FFD700" />
+                    <Setter Property="Background" Value="#404040" />
+                    <Setter Property="Foreground" Value="#94D2BD" />
                 </Trigger>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" Value="#555" />
-                    <Setter Property="Foreground" Value="#FFD700" />
+                    <Setter Property="Background" Value="#555555" />
+                    <Setter Property="Foreground" Value="#94D2BD" />
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <!-- Separator Styling -->
-        <Style TargetType="Separator">
-            <Setter Property="Margin" Value="5,2" />
-            <Setter Property="Background" Value="#666" />
-            <Setter Property="Height" Value="1" />
+        <Style x:Key="MenuSeperator" TargetType="Separator">
+            <Setter Property="Margin" Value="5,5" />
+            <Setter Property="Background" Value="#6b6b6b" />
+            <Setter Property="Height" Value="2" />
+            <Setter Property="Width" Value="1"/>
         </Style>
 
         <!-- Control Panel Button Styling -->
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#CC444444" />
+            <Setter Property="Background" Value="#404040" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="FontSize" Value="16" />
             <Setter Property="Margin" Value="5" />
@@ -84,17 +85,17 @@
                         <Border x:Name="border"
                         Background="{TemplateBinding Background}" 
                         BorderBrush="Transparent"
-                        CornerRadius="5"
+                        CornerRadius="11"
                         BorderThickness="1">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#444" />
-                                <Setter Property="Foreground" Value="#FFD700" />
+                                <Setter TargetName="border" Property="Background" Value="#555555" />
+                                <Setter Property="Foreground" Value="#94D2BD" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#555" />
+                                <Setter TargetName="border" Property="Background" Value="#6b6b6b" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" />
@@ -105,20 +106,21 @@
             </Setter>
         </Style>
 
+        <!-- Slider Settings -->
+        <Style TargetType="Slider">
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
 
     </Window.Resources>
 
 
-
-
-
     <!-- All content -->
     <DockPanel LastChildFill="True">
-
         <!-- Top Menu -->
-        <Menu DockPanel.Dock="Top" Background="#2C2C2C" Foreground="White">
+        <Menu x:Name="TopMenu" DockPanel.Dock="Top" Background="#2C2C2C" Foreground="White">
             <MenuItem Header="_File">
                 <MenuItem Header="Open Video..." Click="OpenVideo_Click"/>
+                <Separator x:Name="MenuSeperator"/>
                 <MenuItem Header="Exit" Click="Exit_Click"/>
             </MenuItem>
             <MenuItem Header="_View">
@@ -145,43 +147,60 @@
                           Stretch="Uniform" Focusable="False" Grid.RowSpan="2" 
                           MediaEnded="MediaElement_MediaEnded"
                           MediaOpened="MediaElement_MediaOpened"/>
-            
-            
 
             <!-- Control Panel at the Bottom -->
             <StackPanel Grid.Row="1" Name="ControlPanel" Orientation="Vertical"
-                        Background="#AA000000" Height="100" Margin="0,0,0,2"
-                        Opacity="1" MouseEnter="ControlPanel_MouseEnter" 
-                        MouseLeave="ControlPanel_MouseLeave">
+            Background="#AA000000" Height="100" Margin="0,0,0,2"
+            Opacity="1" MouseEnter="ControlPanel_MouseEnter" 
+            MouseLeave="ControlPanel_MouseLeave">
 
                 <!-- Overlay for Duration Slider and Time Labels -->
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="7">
-                    <TextBlock Name="ElapsedTime" Text="00:00" Foreground="White" Width="50" VerticalAlignment="Center" />
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" 
+                HorizontalAlignment="Center" Margin="7">
+                    
+                    <TextBlock Name="ElapsedTime" Text="00:00" Foreground="White" 
+                               Width="50" VerticalAlignment="Center" 
+                               FontSize="14"/>
+                    
                     <Slider Name="DurationSlider" Width="800" Margin="5,0"
-                            Minimum="0" Maximum="100" Value="0"
-                            PreviewMouseDown="DurationSlider_PreviewMouseDown"
-                            PreviewMouseUp="DurationSlider_PreviewMouseUp"
-                            ValueChanged="DurationSlider_ValueChanged" 
-                            Focusable="False"/>
-                    <TextBlock Name="RemainingTime" Text="-00:00" Foreground="White" Width="50" VerticalAlignment="Center" />
+                        Minimum="0" Maximum="100" Value="0"
+                        PreviewMouseDown="DurationSlider_PreviewMouseDown"
+                        PreviewMouseUp="DurationSlider_PreviewMouseUp"
+                        ValueChanged="DurationSlider_ValueChanged" 
+                        Focusable="False"/>
+                    
+                    <TextBlock Name="RemainingTime" Text="-00:00" Foreground="White" 
+                               Width="50" VerticalAlignment="Center" 
+                               FontSize="14"/>
                 </StackPanel>
 
                 <!-- Playback Controls and Volume Slider -->
-                <DockPanel Margin="10">
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" HorizontalAlignment="Center">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <!-- Spacer -->
+                        <ColumnDefinition Width="Auto" />
+                        <!-- Controls in the Center -->
+                        <ColumnDefinition Width="*" />
+                        <!-- Spacer -->
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Playback Controls in the Center Column -->
+                    <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Center">
                         <Button x:Name="btnBack" Content="-10s" Click="btnBack_Click" Width="65" Height="35" Focusable="False"/>
-                        <Button x:Name="btnPlay" Content="Play" Click="btnPlay_Click" Width="65" Height="35" Focusable="False"/>
-                        <Button x:Name="btnPause" Content="Pause" Click="btnPause_Click" Width="65" Height="35" Focusable="False"/>
+                        <Button x:Name="btnPlay" Content="▶" Click="btnPlay_Click" Width="65" Height="35" Focusable="False"/>
+                        <Button x:Name="btnPause" Content="❙❙" Click="btnPause_Click" Width="65" Height="35" Focusable="False"/>
                         <Button x:Name="btnForward" Content="+10s" Click="btnForward_Click" Width="65" Height="35" Focusable="False"/>
                     </StackPanel>
 
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                    <!-- Volume Slider on the Right Column -->
+                    <StackPanel Orientation="Horizontal" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
                         <TextBlock Text="🔊" Foreground="White" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <Slider Name="volumeSlider" Width="100" Minimum="0" Maximum="1"
-                                Value="0.5" TickFrequency="0.1" 
-                                ValueChanged="volumeSlider_ValueChanged"/>
+                    Value="0.5" TickFrequency="0.1"
+                    ValueChanged="volumeSlider_ValueChanged"/>
                     </StackPanel>
-                </DockPanel>
+                </Grid>
             </StackPanel>
         </Grid>
     </DockPanel>
