@@ -9,6 +9,7 @@ namespace ZiraceVideoPlayer.Models
         public class Video
         {
             public required string Title { get; set; }
+            public string Description { get; set; }
             public required string FilePath { get; set; }
             public required TimeSpan Duration { get; set; }
             // Thumbnail is not Required
