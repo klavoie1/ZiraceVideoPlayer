@@ -113,10 +113,7 @@ namespace ZiraceVideoPlayer
         }
 
         // Helper to show the controls
-        private void ShowControls()
-        {
-            ControlPanel.Visibility = Visibility.Visible;
-        }
+        private void ShowControls() => ControlPanel.Visibility = Visibility.Visible;
 
         // Show controls when the mouse moves over the video
         private void MediaElement_MouseMove(object sender, MouseEventArgs e)
@@ -224,15 +221,18 @@ namespace ZiraceVideoPlayer
         {
             if (isFullscreen == true)
             {
-                WindowStyle = WindowState == WindowState.Maximized ? WindowStyle.None : WindowStyle.SingleBorderWindow;
-                isFullscreen = false;
+                WindowState = WindowState.Normal;
+                WindowStyle = WindowStyle.SingleBorderWindow;
                 TopMenu.Visibility = Visibility.Visible;
+                isFullscreen = false;
+                
             }
             else
             {
-                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-                isFullscreen = true;
+                WindowState = WindowState.Maximized;
+                WindowStyle = WindowStyle.None;
                 TopMenu.Visibility = Visibility.Collapsed;
+                isFullscreen = true;
             }
         }
 
@@ -338,6 +338,12 @@ namespace ZiraceVideoPlayer
                     e.Handled = true;
                     break;
 
+                case Key.Escape:
+                    if (e.Key == Key.Escape && isFullscreen == true)
+                    {
+                        ToggleFullscreen_Click(sender, e);
+                    }  
+                    break;
                 
             }
         }
