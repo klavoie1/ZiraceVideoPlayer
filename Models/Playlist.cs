@@ -8,7 +8,7 @@ namespace ZiraceVideoPlayer.Models
 {
     public class Playlist
     {
-        public string Name { get; set; }
+        public required string Name { get; set; }
         public List<Video> Videos { get; set; } = new List<Video>();
     }
 }

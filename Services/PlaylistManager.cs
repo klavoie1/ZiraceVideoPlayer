@@ -25,7 +25,7 @@ namespace ZiraceVideoPlayer.Services
                 return new List<Playlist>();
 
             var json = await File.ReadAllTextAsync(PlaylistFilePath);
-            return JsonSerializer.Deserialize<List<Playlist>>(json);
+            return JsonSerializer.Deserialize<List<Playlist>>(json)!;
         }
         
     }

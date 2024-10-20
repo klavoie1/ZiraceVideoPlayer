@@ -9,7 +9,7 @@ namespace ZiraceVideoPlayer.Models
     [Serializable]
     public class VideoState
     {
-        public string VideoPath {  get; set; }
+        public required string VideoPath {  get; set; }
         public double LastPosition { get; set; }
     }
 }

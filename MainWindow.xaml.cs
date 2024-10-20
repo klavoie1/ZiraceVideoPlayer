@@ -16,6 +16,8 @@ using System.Windows.Threading;
 using ZiraceVideoPlayer.Models;
 using Microsoft.Win32;
 using Path = System.IO.Path;
+using System.Timers;
+using System.Diagnostics;
 
 namespace ZiraceVideoPlayer
 {
@@ -25,14 +27,14 @@ namespace ZiraceVideoPlayer
         // Tracking Variables
         private bool isSeeking = false;
         private bool isPlaying = false;
-        private bool isTimerUpdate = false;
+        private bool isTimerUpdate;
         private bool isFullscreen = false;
 
         //Dispatcher Elements
-        private DispatcherTimer durationTimer; //Timing for the Duration Slider
-        private DispatcherTimer DurationLabelTimer; // Timing for duration labels
-        private DispatcherTimer HideControlsTimer; // Timer for hiding the controls overlay
-
+        private readonly DispatcherTimer durationTimer; //Timing for the Duration Slider
+        private readonly DispatcherTimer DurationLabelTimer; // Timing for duration labels
+        private readonly DispatcherTimer HideControlsTimer; // Timer for hiding the controls overlay
+        private readonly DispatcherTimer GarbageCollectionTimer; // Garbage Collector for tests
 
         public MainWindow()
         {
@@ -41,11 +43,11 @@ namespace ZiraceVideoPlayer
             // Set up a timer to update the slider
             durationTimer = new DispatcherTimer();
             durationTimer.Interval = TimeSpan.FromMilliseconds(500);
-            durationTimer.Tick += Timer_Tick;
+            durationTimer.Tick += Timer_Tick!;
 
             DurationLabelTimer = new DispatcherTimer();
             DurationLabelTimer.Interval = TimeSpan.FromMilliseconds(500);
-            DurationLabelTimer.Tick += Timer_Tick;
+            DurationLabelTimer.Tick += Timer_Tick!;
 
             volumeSlider.Value = 0.3; // Set default volume to 30%
             mediaElement.Volume = volumeSlider.Value; // Sync initial volume
@@ -56,14 +58,16 @@ namespace ZiraceVideoPlayer
             // Initialize the timer to hide controls
             HideControlsTimer = new DispatcherTimer();
             HideControlsTimer.Interval = TimeSpan.FromSeconds(1); // Hide after 1 seconds of inactivity
-            HideControlsTimer.Tick += HideControlsTimer_Tick;
+            HideControlsTimer.Tick += HideControlsTimer_Tick!;
 
             // Start listening for mouse events to show/hide controls
             mediaElement.MouseMove += MediaElement_MouseMove;
             ControlPanel.MouseEnter += ControlPanel_MouseEnter;
             ControlPanel.MouseLeave += ControlPanel_MouseLeave;
 
-            
+            GarbageCollectionTimer = new DispatcherTimer();
+            GarbageCollectionTimer.Interval = TimeSpan.FromSeconds(10);
+            GarbageCollectionTimer.Tick += Timer_Tick;
 
 
             // Load the saved state from XML or create a fresh one
@@ -82,6 +86,10 @@ namespace ZiraceVideoPlayer
             {
                 Console.WriteLine("No previous video to load.");
             }
+
+            RunMonitor();
+
+            
         }
 
         
@@ -95,10 +103,6 @@ namespace ZiraceVideoPlayer
             MessageBox.Show("Zirace video player.", "About");
         }
 
-        private void Toolbar(object sender, RoutedEventArgs e)
-        {
-
-        }
 
 
         // End of File menu bar settings------------------------------------------------------------>
@@ -225,14 +229,16 @@ namespace ZiraceVideoPlayer
                 WindowStyle = WindowStyle.SingleBorderWindow;
                 TopMenu.Visibility = Visibility.Visible;
                 isFullscreen = false;
-                
+                Topmost = false;
             }
             else
             {
                 WindowState = WindowState.Maximized;
                 WindowStyle = WindowStyle.None;
                 TopMenu.Visibility = Visibility.Collapsed;
+                ResizeMode = ResizeMode.NoResize;
                 isFullscreen = true;
+                Topmost = true;
             }
         }
 
@@ -351,7 +357,7 @@ namespace ZiraceVideoPlayer
         // End of Keyboard Shortcuts-------------------------------------------------->
 
         //  Saving video progression settings---------------------------------->
-        private void SaveVideoState(string videoPath, double position)
+        private static void SaveVideoState(string videoPath, double position)
         {
             try
             {
@@ -388,7 +394,7 @@ namespace ZiraceVideoPlayer
                     XmlSerializer serializer = new XmlSerializer(typeof(VideoState));
                     using (FileStream stream = new FileStream(filePath, FileMode.Open))
                     {
-                        return (VideoState)serializer.Deserialize(stream);
+                        return (VideoState)serializer.Deserialize(stream)!;
                     }
                 }
 
@@ -475,6 +481,24 @@ namespace ZiraceVideoPlayer
         {
             var newPosition = mediaElement.Position + TimeSpan.FromSeconds(seconds);
             mediaElement.Position = newPosition < TimeSpan.Zero ? TimeSpan.Zero : newPosition;
+        }
+
+
+        public void MonitorGC()
+        {
+            long memoryBefore = GC.GetTotalMemory(false);
+            GC.Collect(); // Force garbage collection
+            GC.WaitForPendingFinalizers();
+            long memoryAfter = GC.GetTotalMemory(true);
+
+            Console.WriteLine($"Memory used before GC: {memoryBefore / 1024} KB");
+            Console.WriteLine($"Memory used after GC: {memoryAfter / 1024} KB");
+        }
+
+        private void RunMonitor()
+        {
+            MonitorGC();
+            GarbageCollectionTimer.Start();
         }
 
     }
