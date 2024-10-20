@@ -95,6 +95,11 @@ namespace ZiraceVideoPlayer
             MessageBox.Show("Zirace video player.", "About");
         }
 
+        private void Toolbar(object sender, RoutedEventArgs e)
+        {
+
+        }
+
 
         // End of File menu bar settings------------------------------------------------------------>
 
@@ -217,8 +222,18 @@ namespace ZiraceVideoPlayer
 
         private void ToggleFullscreen()
         {
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-            WindowStyle = WindowState == WindowState.Maximized ? WindowStyle.None : WindowStyle.SingleBorderWindow;
+            if (isFullscreen == true)
+            {
+                WindowStyle = WindowState == WindowState.Maximized ? WindowStyle.None : WindowStyle.SingleBorderWindow;
+                isFullscreen = false;
+                TopMenu.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                isFullscreen = true;
+                TopMenu.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void IncreaseVolume()
@@ -323,6 +338,7 @@ namespace ZiraceVideoPlayer
                     e.Handled = true;
                     break;
 
+                
             }
         }
 
