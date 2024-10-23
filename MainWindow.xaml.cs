@@ -87,12 +87,17 @@ namespace ZiraceVideoPlayer
                 Console.WriteLine("No previous video to load.");
             }
 
+            // Debugging Methods
+           
             RunMonitor();
 
-            
+            //FPSCounter fpsCounter = new FPSCounter();
+
+            //PerformanceMonitor monitor = new PerformanceMonitor();
+
         }
 
-        
+
 
         // Menu tab at the top of the video player settings--------------------------------------->//
         private void Exit_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
@@ -483,7 +488,12 @@ namespace ZiraceVideoPlayer
             mediaElement.Position = newPosition < TimeSpan.Zero ? TimeSpan.Zero : newPosition;
         }
 
+        // End of Helper methods---------------------------------------------------->
 
+        // Settings for Debugging and Performance Checking--------------------------->
+
+        // When the application starts, this Garbage collector cleans up the processes
+        // before the main application runs.
         public void MonitorGC()
         {
             long memoryBefore = GC.GetTotalMemory(false);
@@ -497,8 +507,67 @@ namespace ZiraceVideoPlayer
 
         private void RunMonitor()
         {
-            MonitorGC();
             GarbageCollectionTimer.Start();
+            MonitorGC();
+        }
+
+        // Class for FPS counter on the application
+        public class FPSCounter
+        {
+            private Stopwatch stopwatch;
+            private int frameCount;
+
+            public FPSCounter()
+            {
+                stopwatch = Stopwatch.StartNew();
+                CompositionTarget.Rendering += OnRendering;
+            }
+
+            private void OnRendering(object sender, EventArgs e)
+            {
+                frameCount++;
+                if (stopwatch.ElapsedMilliseconds >= 1000)
+                {
+                    Console.WriteLine($"FPS: {frameCount}");
+                    frameCount = 0;
+                    stopwatch.Restart();
+                }
+            }
+        }
+
+        public class PerformanceMonitor
+        {
+            private PerformanceCounter cpuCounter;
+            private PerformanceCounter ramCounter;
+            private System.Timers.Timer performanceTimer;
+
+            public PerformanceMonitor()
+            {
+                // Set up performance counters for CPU and RAM usage
+                cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+                ramCounter = new PerformanceCounter("Memory", "Available MBytes");
+
+                // Timer to periodically fetch metrics
+                performanceTimer = new System.Timers.Timer(1000); // Every second
+                performanceTimer.Elapsed += MonitorPerformance;
+                performanceTimer.Start();
+            }
+
+            private void MonitorPerformance(object sender, ElapsedEventArgs e)
+            {
+                float cpuUsage = cpuCounter.NextValue();
+                float availableRAM = ramCounter.NextValue();
+
+                Console.WriteLine($"CPU Usage: {cpuUsage}%");
+                Console.WriteLine($"Available RAM: {availableRAM} MB");
+            }
+
+            public void StopMonitoring()
+            {
+                performanceTimer.Stop();
+                cpuCounter.Dispose();
+                ramCounter.Dispose();
+            }
         }
 
     }
