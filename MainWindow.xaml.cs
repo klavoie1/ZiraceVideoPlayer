@@ -1,20 +1,10 @@
-﻿using System.Printing;
-using System.Text;
-using System.IO;
+﻿using System.IO;
 using System.Xml.Serialization;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Diagnostics;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using ZiraceVideoPlayer.Models;
-using Microsoft.Win32;
 using Path = System.IO.Path;
 using System.Timers;
 using System.Diagnostics;
@@ -27,7 +17,7 @@ namespace ZiraceVideoPlayer
         // Tracking Variables
         private bool isSeeking = false;
         private bool isPlaying = false;
-        private bool isTimerUpdate;
+        private bool isTimerUpdate = false;
         private bool isFullscreen = false;
 
         //Dispatcher Elements
@@ -388,7 +378,7 @@ namespace ZiraceVideoPlayer
             }
         }
 
-        private VideoState LoadVideoState()
+        private static VideoState LoadVideoState()
         {
             try
             {
@@ -397,10 +387,8 @@ namespace ZiraceVideoPlayer
                 if (File.Exists(filePath))
                 {
                     XmlSerializer serializer = new XmlSerializer(typeof(VideoState));
-                    using (FileStream stream = new FileStream(filePath, FileMode.Open))
-                    {
-                        return (VideoState)serializer.Deserialize(stream)!;
-                    }
+                    using FileStream stream = new FileStream(filePath, FileMode.Open);
+                    return (VideoState)serializer.Deserialize(stream)!;
                 }
 
                 Console.WriteLine("No saved state found. Starting fresh.");
@@ -477,7 +465,7 @@ namespace ZiraceVideoPlayer
         // Helper Methods------------------------------------------------------>
 
         // Helper method to format the time (hh:mm:ss)
-        private string FormatTime(TimeSpan time)
+        private static string FormatTime(TimeSpan time)
         {
             return time.ToString(time.Hours > 0 ? @"hh\:mm\:ss" : @"mm\:ss");
         }
@@ -494,7 +482,7 @@ namespace ZiraceVideoPlayer
 
         // When the application starts, this Garbage collector cleans up the processes
         // before the main application runs.
-        public void MonitorGC()
+        public static void MonitorGC()
         {
             long memoryBefore = GC.GetTotalMemory(false);
             GC.Collect(); // Force garbage collection
@@ -514,7 +502,7 @@ namespace ZiraceVideoPlayer
         // Class for FPS counter on the application
         public class FPSCounter
         {
-            private Stopwatch stopwatch;
+            private readonly Stopwatch stopwatch;
             private int frameCount;
 
             public FPSCounter()
@@ -526,7 +514,7 @@ namespace ZiraceVideoPlayer
             private void OnRendering(object sender, EventArgs e)
             {
                 frameCount++;
-                if (stopwatch.ElapsedMilliseconds >= 1000)
+                if (stopwatch.ElapsedMilliseconds >= 1500)
                 {
                     Console.WriteLine($"FPS: {frameCount}");
                     frameCount = 0;
@@ -537,9 +525,9 @@ namespace ZiraceVideoPlayer
 
         public class PerformanceMonitor
         {
-            private PerformanceCounter cpuCounter;
-            private PerformanceCounter ramCounter;
-            private System.Timers.Timer performanceTimer;
+            private readonly PerformanceCounter cpuCounter;
+            private readonly PerformanceCounter ramCounter;
+            private readonly System.Timers.Timer performanceTimer;
 
             public PerformanceMonitor()
             {
