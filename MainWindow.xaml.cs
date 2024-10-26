@@ -8,6 +8,7 @@ using ZiraceVideoPlayer.Models;
 using Path = System.IO.Path;
 using System.Timers;
 using System.Diagnostics;
+using System.Windows.Media.Animation;
 
 namespace ZiraceVideoPlayer
 {
@@ -16,7 +17,6 @@ namespace ZiraceVideoPlayer
         // Tracking Variables
         private bool isSeeking = false;
         private bool isPlaying = false;
-        private bool isTimerUpdate = false;
         private bool isFullscreen = false;
 
         //Dispatcher Elements
@@ -34,19 +34,9 @@ namespace ZiraceVideoPlayer
             durationTimer.Interval = TimeSpan.FromMilliseconds(500);
             durationTimer.Tick += Timer_Tick!;
 
-            DurationLabelTimer = new DispatcherTimer();
-            DurationLabelTimer.Interval = TimeSpan.FromMilliseconds(500);
-            DurationLabelTimer.Tick += Timer_Tick!;
-
-            volumeSlider.Value = 0.3; // Set default volume to 30%
-            mediaElement.Volume = volumeSlider.Value; // Sync initial volume
-
-            // Start with the control panel visible
-            ShowControls();
-
             // Initialize the timer to hide controls
             HideControlsTimer = new DispatcherTimer();
-            HideControlsTimer.Interval = TimeSpan.FromSeconds(1); // Hide after 1 seconds of inactivity
+            HideControlsTimer.Interval = TimeSpan.FromSeconds(3); // Hide after 3 seconds of inactivity
             HideControlsTimer.Tick += HideControlsTimer_Tick!;
 
             // Start listening for mouse events to show/hide controls
@@ -56,8 +46,14 @@ namespace ZiraceVideoPlayer
 
             GarbageCollectionTimer = new DispatcherTimer();
             GarbageCollectionTimer.Interval = TimeSpan.FromSeconds(10);
-            GarbageCollectionTimer.Tick += Timer_Tick;
+            GarbageCollectionTimer.Tick += Timer_Tick!;
 
+            volumeSlider.Value = 0.3; // Set default volume to 30%
+            mediaElement.Volume = volumeSlider.Value; // Sync initial volume
+
+            // Start with the control panel visible
+            ShowControls();
+            StartDurationTimer();
 
             // Load the saved state from XML or create a fresh one
             var savedState = LoadVideoState();
@@ -97,8 +93,6 @@ namespace ZiraceVideoPlayer
             MessageBox.Show("Zirace video player.", "About");
         }
 
-
-
         // End of File menu bar settings------------------------------------------------------------>
 
 
@@ -106,17 +100,29 @@ namespace ZiraceVideoPlayer
         // Hide the controls when the timer elapses
         private void HideControlsTimer_Tick(object sender, EventArgs e)
         {
-            ControlPanel.Visibility = Visibility.Collapsed;
+            HideControls();
             HideControlsTimer.Stop(); // Stop the timer until the next interaction
+            FadeOutAnimation();
         }
 
         // Helper to show the controls
-        private void ShowControls() => ControlPanel.Visibility = Visibility.Visible;
+        private void ShowControls()
+        {
+            ControlPanel.Visibility = Visibility.Visible;
+            ControlPanel.Opacity = 1;
+        }
+
+        private void HideControls() => ControlPanel.Visibility = Visibility.Collapsed;
 
         // Show controls when the mouse moves over the video
         private void MediaElement_MouseMove(object sender, MouseEventArgs e)
         {
-            ShowControls();
+            if (ControlPanel.Visibility != Visibility.Visible)
+            {
+                ControlPanel.BeginAnimation(OpacityProperty, null);
+                ShowControls();
+            }
+            ControlPanel.Opacity = 1;
             HideControlsTimer.Stop(); // Reset the hide timer
             HideControlsTimer.Start(); // Start the hide timer again
         }
@@ -132,6 +138,26 @@ namespace ZiraceVideoPlayer
             HideControlsTimer.Start(); // Restart the timer when leaving the controls
         }
 
+        private void FadeOutAnimation()
+        {
+            DoubleAnimation fadeOut = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromSeconds(2),
+                FillBehavior = FillBehavior.Stop // Ensures it doesn’t hold final value
+            };
+
+            fadeOut.Completed += (s, e) =>
+            {
+                ControlPanel.Visibility = Visibility.Collapsed;
+                ControlPanel.Opacity = 1; // Reset opacity for next time
+            };
+
+            ControlPanel.BeginAnimation(OpacityProperty, fadeOut);
+        }
+
+
         // End of Overlay Control Panel Settings--------------------------------------------------->
 
 
@@ -142,10 +168,8 @@ namespace ZiraceVideoPlayer
         {
             if (mediaElement.NaturalDuration.HasTimeSpan && !isSeeking)
             {
-                isTimerUpdate = true;
                 DurationSlider.Maximum = mediaElement.NaturalDuration.TimeSpan.TotalSeconds;
                 DurationSlider.Value = mediaElement.Position.TotalSeconds;
-                isTimerUpdate = false;
             }
             if (mediaElement.NaturalDuration.HasTimeSpan)
             {
@@ -163,19 +187,27 @@ namespace ZiraceVideoPlayer
             }
         }
 
+        private void StartDurationTimer()
+        {
+            if (!durationTimer.IsEnabled)
+            {
+                durationTimer.Start();
+            }
+        }
+
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {
             mediaElement.Play();
-            DurationLabelTimer.Start();
             isPlaying = true;
             ShowControls();
+            StartDurationTimer();
         }
 
         private void btnPause_Click(object sender, RoutedEventArgs e)
         {
             mediaElement.Pause();
-            DurationLabelTimer.Stop();
+            durationTimer.Stop();
             isPlaying = false;
             ShowControls();
             if (mediaElement.Source != null)
@@ -196,14 +228,14 @@ namespace ZiraceVideoPlayer
         private void DurationSlider_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             isSeeking = true; // Stops the timer when a user interacts with the slider
-            DurationLabelTimer.Stop();
+            durationTimer.Stop();
         }
 
         private void DurationSlider_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             isSeeking = false; // Resumes the timer updates
             mediaElement.Position = TimeSpan.FromSeconds(DurationSlider.Value);
-            DurationLabelTimer.Start();
+            durationTimer.Start();
         }
     
 
@@ -349,6 +381,7 @@ namespace ZiraceVideoPlayer
                     {
                         ToggleFullscreen_Click(sender, e);
                     }  
+                    e.Handled= true;
                     break;
                 
             }
