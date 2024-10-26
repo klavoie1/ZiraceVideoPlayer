@@ -21,7 +21,6 @@ namespace ZiraceVideoPlayer
 
         //Dispatcher Elements
         private readonly DispatcherTimer durationTimer; //Timing for the Duration Slider
-        private readonly DispatcherTimer DurationLabelTimer; // Timing for duration labels
         private readonly DispatcherTimer HideControlsTimer; // Timer for hiding the controls overlay
         private readonly DispatcherTimer GarbageCollectionTimer; // Garbage Collector for tests
 
@@ -100,7 +99,6 @@ namespace ZiraceVideoPlayer
         // Hide the controls when the timer elapses
         private void HideControlsTimer_Tick(object sender, EventArgs e)
         {
-            HideControls();
             HideControlsTimer.Stop(); // Stop the timer until the next interaction
             FadeOutAnimation();
         }
