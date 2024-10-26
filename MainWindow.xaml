@@ -7,7 +7,9 @@
         mc:Ignorable="d"
         Title="Zirace" Height="600" Width="1000"
         KeyDown="Window_KeyDown"
-        Background="Black">
+        MouseMove="MediaElement_MouseMove"
+        Background="Black"
+        FontFamily="Verdana">
 
     <Window.Resources>
         <!-- Menu Style -->
@@ -153,7 +155,7 @@
             <StackPanel Grid.Row="1" Name="ControlPanel" Orientation="Vertical"
             Background="#AA000000" Height="100" Margin="0,0,0,2"
             Opacity="1" MouseEnter="ControlPanel_MouseEnter" 
-            MouseLeave="ControlPanel_MouseLeave">
+            MouseLeave="ControlPanel_MouseLeave" Visibility="Visible">
 
                 <!-- Overlay for Duration Slider and Time Labels -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" 
@@ -161,7 +163,7 @@
                     
                     <TextBlock Name="ElapsedTime" Text="00:00" Foreground="White" 
                                Width="50" VerticalAlignment="Center" 
-                               FontSize="14"/>
+                               FontSize="16"/>
                     
                     <Slider Name="DurationSlider" Width="800" Margin="5,0"
                         Minimum="0" Maximum="100" Value="0"
@@ -172,7 +174,7 @@
                     
                     <TextBlock Name="RemainingTime" Text="-00:00" Foreground="White" 
                                Width="50" VerticalAlignment="Center" 
-                               FontSize="14"/>
+                               FontSize="16"/>
                 </StackPanel>
 
                 <!-- Playback Controls and Volume Slider -->
