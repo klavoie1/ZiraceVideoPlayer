@@ -8,14 +8,14 @@
         Title="Zirace" Height="600" Width="1000"
         KeyDown="Window_KeyDown"
         MouseMove="MediaElement_MouseMove"
-        Background="Black"
+        Background="black"
         FontFamily="Verdana">
 
     <Window.Resources>
         <!-- Menu Style -->
         <Style TargetType="Menu">
             <Setter Property="Background" Value="#2C2C2C" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="white" />
             <Setter Property="FontFamily" Value="Segoe UI" />
             <Setter Property="FontSize" Value="16" />
         </Style>
@@ -23,15 +23,17 @@
         <!-- Dropdown MenuItem Style -->
         <!-- MenuItem Style with Child Menu Support -->
         <Style TargetType="MenuItem">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
             <Setter Property="Background" Value="#2C2C2C" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="white" />
             <Setter Property="Padding" Value="10,5" />
             <Setter Property="Margin" Value="2" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="MenuItem">
                         <Border Background="{TemplateBinding Background}"
-                                CornerRadius="5"
+                                CornerRadius="3"
                                 BorderBrush="#828282"
                                 BorderThickness="0">
                             <Grid>
@@ -40,7 +42,7 @@
                                        Placement="Bottom"
                                        IsOpen="{TemplateBinding IsSubmenuOpen}"
                                        AllowsTransparency="True">
-                                    <Border Background="#2C2C2C" CornerRadius="3" 
+                                    <Border Background="#2C2C2C" CornerRadius="2" 
                                             BorderBrush="#404040" BorderThickness="2">
                                         <ItemsPresenter />
                                     </Border>
@@ -58,19 +60,27 @@
                     <Setter Property="Foreground" Value="#94D2BD" />
                 </Trigger>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" Value="#555555" />
+                    <Setter Property="Background" Value="#404040" />
                     <Setter Property="Foreground" Value="#94D2BD" />
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <!-- Separator Styling -->
-        <Style TargetType="Separator">
-            <Setter Property="Margin" Value="5,5" />
-            <Setter Property="Background" Value="#6b6b6b" />
-            <Setter Property="Height" Value="2" />
-            <Setter Property="Width" Value="1"/>
+        <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator">
+            <Setter Property="OverridesDefaultStyle" Value="true" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Separator}">
+                        <Border Width="100" Height="2" Margin="4" Background="#828282"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
+
+
+
+
 
         <!-- Control Panel Button Styling -->
         <Style TargetType="Button">
@@ -80,27 +90,27 @@
             <Setter Property="Margin" Value="5" />
             <Setter Property="Padding" Value="10,5" />
             <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Opacity" Value="0.9" />
+            <Setter Property="Opacity" Value="1" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border"
                         Background="{TemplateBinding Background}" 
                         BorderBrush="Transparent"
-                        CornerRadius="11"
+                        CornerRadius="10"
                         BorderThickness="1">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#555555" />
+                                <Setter TargetName="border" Property="Background" Value="#363b39" />
                                 <Setter Property="Foreground" Value="#94D2BD" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#6b6b6b" />
+                                <Setter TargetName="border" Property="Background" Value="#555555" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.5" />
+                                <Setter Property="Opacity" Value="0.3" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -173,7 +183,7 @@
                         Focusable="False"/>
                     
                     <TextBlock Name="RemainingTime" Text="-00:00" Foreground="White" 
-                               Width="50" VerticalAlignment="Center" 
+                               Width="60" VerticalAlignment="Center" 
                                FontSize="16"/>
                 </StackPanel>
 
@@ -201,7 +211,8 @@
                         <TextBlock Text="🔊" Foreground="White" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <Slider Name="volumeSlider" Width="100" Minimum="0" Maximum="1"
                     Value="0.5" TickFrequency="0.1"
-                    ValueChanged="volumeSlider_ValueChanged"/>
+                    ValueChanged="volumeSlider_ValueChanged"
+                                Focusable="False"/>
                     </StackPanel>
                 </Grid>
             </StackPanel>
