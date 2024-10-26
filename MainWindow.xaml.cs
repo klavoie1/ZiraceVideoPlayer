@@ -11,7 +11,6 @@ using System.Diagnostics;
 
 namespace ZiraceVideoPlayer
 {
-    
     public partial class MainWindow : Window
     {
         // Tracking Variables
@@ -70,7 +69,7 @@ namespace ZiraceVideoPlayer
                 mediaElement.Position = TimeSpan.FromSeconds(savedState.LastPosition);
 
                 Console.WriteLine($"Resuming: {savedState.VideoPath} at {savedState.LastPosition} seconds.");
-                mediaElement.Play();  // Optionally start playing the video
+                mediaElement.Play();  // start playing the video
             }
             else
             {
@@ -292,6 +291,11 @@ namespace ZiraceVideoPlayer
                 mediaElement.Pause();
                 System.Console.WriteLine("Video Paused");
                 isPlaying = false;
+
+                if (mediaElement.Source != null)
+                {
+                    SaveVideoState(mediaElement.Source.ToString(), mediaElement.Position.TotalSeconds);
+                }
             }
             else if (mediaElement != null && isPlaying == false)
             {
@@ -299,6 +303,7 @@ namespace ZiraceVideoPlayer
                 System.Console.WriteLine($"Video Resumed @ {FormatTime(mediaElement.Position)}");
                 isPlaying = true;
             }
+            
         }
 
         // End of Control Panel Settings------------------------------------------------------->
