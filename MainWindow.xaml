@@ -5,28 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZiraceVideoPlayer.Services"
         mc:Ignorable="d"
-        Title="Zirace" Height="600" Width="1000"
+        Title="Zirace" Height="764" Width="1358"
         KeyDown="Window_KeyDown"
         MouseMove="MediaElement_MouseMove"
-        Background="black"
+        Background="#111111"
         FontFamily="Verdana">
 
     <Window.Resources>
+
+        
+        <Color x:Key="Surface-A0">#111111</Color>
+        <Color x:Key="Surface-A20">#272727</Color>
+        
+        
         <!-- Menu Style -->
         <Style TargetType="Menu">
             <Setter Property="Background" Value="#2C2C2C" />
-            <Setter Property="Foreground" Value="white" />
+            <Setter Property="Foreground" Value="#ffffff" />
             <Setter Property="FontFamily" Value="Segoe UI" />
             <Setter Property="FontSize" Value="16" />
         </Style>
 
-        <!-- Dropdown MenuItem Style -->
         <!-- MenuItem Style with Child Menu Support -->
         <Style TargetType="MenuItem">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Stretch"/>
             <Setter Property="Background" Value="#2C2C2C" />
-            <Setter Property="Foreground" Value="white" />
+            <Setter Property="Foreground" Value="#ffffff" />
             <Setter Property="Padding" Value="10,5" />
             <Setter Property="Margin" Value="2" />
             <Setter Property="Template">
@@ -78,14 +83,10 @@
             </Setter>
         </Style>
 
-
-
-
-
         <!-- Control Panel Button Styling -->
         <Style TargetType="Button">
             <Setter Property="Background" Value="#404040" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="#ffffff" />
             <Setter Property="FontSize" Value="16" />
             <Setter Property="Margin" Value="5" />
             <Setter Property="Padding" Value="10,5" />
@@ -129,7 +130,7 @@
     <!-- All content -->
     <DockPanel LastChildFill="True">
         <!-- Top Menu -->
-        <Menu x:Name="TopMenu" DockPanel.Dock="Top" Background="#2C2C2C" Foreground="White">
+        <Menu x:Name="TopMenu" DockPanel.Dock="Top" Background="#2C2C2C" Foreground="#ffffff">
             <MenuItem Header="_File">
                 <MenuItem Header="Open Video..." Click="OpenVideo_Click"/>
                 <Separator/>
@@ -163,15 +164,15 @@
 
             <!-- Control Panel at the Bottom -->
             <StackPanel Grid.Row="1" Name="ControlPanel" Orientation="Vertical"
-            Background="#AA000000" Height="100" Margin="0,0,0,2"
+            Background="#AA000000" Height="100" Margin="20,0,20,20"
             Opacity="1" MouseEnter="ControlPanel_MouseEnter" 
             MouseLeave="ControlPanel_MouseLeave" Visibility="Visible">
 
                 <!-- Overlay for Duration Slider and Time Labels -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" 
                 HorizontalAlignment="Center" Margin="7">
-                    
-                    <TextBlock Name="ElapsedTime" Text="00:00" Foreground="White" 
+
+                    <TextBlock Name="ElapsedTime" Text="00:00" Foreground="#ffffff" 
                                Width="50" VerticalAlignment="Center" 
                                FontSize="16"/>
                     
@@ -181,8 +182,8 @@
                         PreviewMouseUp="DurationSlider_PreviewMouseUp"
                         ValueChanged="DurationSlider_ValueChanged" 
                         Focusable="False"/>
-                    
-                    <TextBlock Name="RemainingTime" Text="-00:00" Foreground="White" 
+
+                    <TextBlock Name="RemainingTime" Text="-00:00" Foreground="#ffffff" 
                                Width="60" VerticalAlignment="Center" 
                                FontSize="16"/>
                 </StackPanel>
@@ -199,7 +200,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Playback Controls in the Center Column -->
-                    <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Center" >
                         <Button x:Name="btnBack" Content="-10s" Click="btnBack_Click" Width="65" Height="35" Focusable="False"/>
                         <Button x:Name="btnPlay" Content="▶" Click="btnPlay_Click" Width="65" Height="35" Focusable="False"/>
                         <Button x:Name="btnPause" Content="❙❙" Click="btnPause_Click" Width="65" Height="35" Focusable="False"/>
@@ -208,7 +209,7 @@
 
                     <!-- Volume Slider on the Right Column -->
                     <StackPanel Orientation="Horizontal" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                        <TextBlock Text="🔊" Foreground="White" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="🔊" Foreground="#ffffff" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <Slider Name="volumeSlider" Width="100" Minimum="0" Maximum="1"
                     Value="0.5" TickFrequency="0.1"
                     ValueChanged="volumeSlider_ValueChanged"
