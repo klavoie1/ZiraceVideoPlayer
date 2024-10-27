@@ -120,7 +120,6 @@ namespace ZiraceVideoPlayer
             {
                 ControlPanel.BeginAnimation(OpacityProperty, null);
                 FadeInAnimation();
-                ShowControls();
             }
             ControlPanel.Opacity = 1;
             HideControlsTimer.Stop(); // Reset the hide timer
@@ -144,13 +143,15 @@ namespace ZiraceVideoPlayer
             {
                 From = 0.0,
                 To = 1.0,
-                Duration = TimeSpan.FromSeconds(1)
+                Duration = TimeSpan.FromMilliseconds(500), 
+                FillBehavior = FillBehavior.Stop
             };
             fadeIn.Completed += (s, e) =>
             {
                 ControlPanel.Visibility = Visibility.Visible;
                 ControlPanel.Opacity = 1;
             };
+            ControlPanel.BeginAnimation(OpacityProperty, fadeIn);
         }
 
         private void FadeOutAnimation()
@@ -209,8 +210,7 @@ namespace ZiraceVideoPlayer
             }
         }
 
-
-        private void btnPlay_Click(object sender, RoutedEventArgs e)
+        private void OnPlay_Click(object sender, RoutedEventArgs e)
         {
             mediaElement.Play();
             isPlaying = true;
@@ -218,7 +218,7 @@ namespace ZiraceVideoPlayer
             StartDurationTimer();
         }
 
-        private void btnPause_Click(object sender, RoutedEventArgs e)
+        private void OnPause_Click(object sender, RoutedEventArgs e)
         {
             mediaElement.Pause();
             durationTimer.Stop();
@@ -230,9 +230,9 @@ namespace ZiraceVideoPlayer
             }
         }
 
-        private void btnBack_Click(object sender, RoutedEventArgs e) => Seek(-10);
+        private void OnBack_Click(object sender, RoutedEventArgs e) => Seek(-10);
 
-        private void btnForward_Click(object sender, RoutedEventArgs e) => Seek(10);
+        private void OnForward_Click(object sender, RoutedEventArgs e) => Seek(10);
 
         private void volumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {

@@ -201,10 +201,10 @@
 
                     <!-- Playback Controls in the Center Column -->
                     <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Center" >
-                        <Button x:Name="btnBack" Content="-10s" Click="btnBack_Click" Width="65" Height="35" Focusable="False"/>
-                        <Button x:Name="btnPlay" Content="▶" Click="btnPlay_Click" Width="65" Height="35" Focusable="False"/>
-                        <Button x:Name="btnPause" Content="❙❙" Click="btnPause_Click" Width="65" Height="35" Focusable="False"/>
-                        <Button x:Name="btnForward" Content="+10s" Click="btnForward_Click" Width="65" Height="35" Focusable="False"/>
+                        <Button x:Name="btnBack" Content="-10s" Click="OnBack_Click" Width="65" Height="35" Focusable="False"/>
+                        <Button x:Name="btnPlay" Content="▶" Click="OnPlay_Click" Width="65" Height="35" Focusable="False"/>
+                        <Button x:Name="btnPause" Content="❙❙" Click="OnPause_Click" Width="65" Height="35" Focusable="False"/>
+                        <Button x:Name="btnForward" Content="+10s" Click="OnForward_Click" Width="65" Height="35" Focusable="False"/>
                     </StackPanel>
 
                     <!-- Volume Slider on the Right Column -->
