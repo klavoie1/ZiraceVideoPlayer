@@ -20,7 +20,7 @@ namespace ZiraceVideoPlayer
         private bool isFullscreen = false;
 
         //Dispatcher Elements
-        private readonly DispatcherTimer durationTimer; //Timing for the Duration Slider
+        private readonly DispatcherTimer durationTimer; //Timing for the Duration Slider and labels
         private readonly DispatcherTimer HideControlsTimer; // Timer for hiding the controls overlay
         private readonly DispatcherTimer GarbageCollectionTimer; // Garbage Collector for tests
 
@@ -35,7 +35,7 @@ namespace ZiraceVideoPlayer
 
             // Initialize the timer to hide controls
             HideControlsTimer = new DispatcherTimer();
-            HideControlsTimer.Interval = TimeSpan.FromSeconds(3); // Hide after 3 seconds of inactivity
+            HideControlsTimer.Interval = TimeSpan.FromSeconds(2); // Hide after 2 seconds of inactivity
             HideControlsTimer.Tick += HideControlsTimer_Tick!;
 
             // Start listening for mouse events to show/hide controls
@@ -47,7 +47,7 @@ namespace ZiraceVideoPlayer
             GarbageCollectionTimer.Interval = TimeSpan.FromSeconds(10);
             GarbageCollectionTimer.Tick += Timer_Tick!;
 
-            volumeSlider.Value = 0.3; // Set default volume to 30%
+            volumeSlider.Value = 0.5; // Set default volume to 50%
             mediaElement.Volume = volumeSlider.Value; // Sync initial volume
 
             // Start with the control panel visible
@@ -71,6 +71,8 @@ namespace ZiraceVideoPlayer
                 Console.WriteLine("No previous video to load.");
             }
 
+
+
             // Debugging Methods
            
             RunMonitor();
@@ -91,7 +93,6 @@ namespace ZiraceVideoPlayer
         {
             MessageBox.Show("Zirace video player.", "About");
         }
-
         // End of File menu bar settings------------------------------------------------------------>
 
 
@@ -118,6 +119,7 @@ namespace ZiraceVideoPlayer
             if (ControlPanel.Visibility != Visibility.Visible)
             {
                 ControlPanel.BeginAnimation(OpacityProperty, null);
+                FadeInAnimation();
                 ShowControls();
             }
             ControlPanel.Opacity = 1;
@@ -136,13 +138,28 @@ namespace ZiraceVideoPlayer
             HideControlsTimer.Start(); // Restart the timer when leaving the controls
         }
 
+        private void FadeInAnimation()
+        {
+            DoubleAnimation fadeIn = new DoubleAnimation
+            {
+                From = 0.0,
+                To = 1.0,
+                Duration = TimeSpan.FromSeconds(1)
+            };
+            fadeIn.Completed += (s, e) =>
+            {
+                ControlPanel.Visibility = Visibility.Visible;
+                ControlPanel.Opacity = 1;
+            };
+        }
+
         private void FadeOutAnimation()
         {
             DoubleAnimation fadeOut = new DoubleAnimation
             {
                 From = 1.0,
                 To = 0.0,
-                Duration = TimeSpan.FromSeconds(2),
+                Duration = TimeSpan.FromSeconds(1),
                 FillBehavior = FillBehavior.Stop // Ensures it doesn’t hold final value
             };
 
@@ -154,7 +171,6 @@ namespace ZiraceVideoPlayer
 
             ControlPanel.BeginAnimation(OpacityProperty, fadeOut);
         }
-
 
         // End of Overlay Control Panel Settings--------------------------------------------------->
 
@@ -448,7 +464,7 @@ namespace ZiraceVideoPlayer
             // Open the video file
             Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog()
             {
-                Filter = "Video Files|*.mp4;*.avi;*.mkv"
+                Filter = "Video Files|*.mp4;*.avi"
             };
             if (openFileDialog.ShowDialog() == true)
             {
@@ -533,6 +549,7 @@ namespace ZiraceVideoPlayer
         {
             GarbageCollectionTimer.Start();
             MonitorGC();
+            GarbageCollectionTimer.Stop();
         }
 
         // Class for FPS counter on the application
